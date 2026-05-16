@@ -1,114 +1,61 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\CheckinController;
+use App\Http\Controllers\EquipmentController;
 
-Route::get('/login', [
-    AdminAuthController::class,
-    'loginForm'
-])->name('login');
+Route::get(
+    '/login',
+    [AuthController::class, 'showLogin']
+);
 
-Route::post('/login', [
-    AdminAuthController::class,
-    'login'
-]);
+Route::post(
+    '/login',
+    [AuthController::class, 'loginWeb']
+);
 
-Route::post('/logout', [
-    AdminAuthController::class,
-    'logout'
-]);
+Route::post(
+    '/logout',
+    [AuthController::class, 'logout']
+);
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', [
-        EquipmentController::class,
-        'dashboard'
-    ]);
-
-    Route::get('/member', function () {
-        $equipments = \App\Models\Equipment::query()->where('status', '=', 'available')->get();
-        $myBookings = \App\Models\Booking::with(
-            'equipment'
-        )
-        ->where('user_id', '=', auth()->id())
-        ->latest()
-        ->get();
-
-
-        return view(
-            'member.dashboard',
-            compact(
-                'equipments',
-                'myBookings'
-            )
-        );
-
-    });
+    Route::get(
+        '/',
+        [EquipmentController::class, 'dashboard']
+    );
 
     Route::resource(
         'equipments',
         EquipmentController::class
     );
 
-    Route::get('/bookings', [
-        BookingController::class,
-        'index'
-    ]);
+    Route::get(
+        '/bookings',
+        [BookingController::class, 'index']
+    );
 
-    Route::get('/checkins', [
-        CheckinController::class,
-        'index'
-    ]);
+    Route::get(
+        '/bookings/{id}/edit',
+        [BookingController::class, 'edit']
+    );
 
-    Route::post('/member-checkin/{id}', function ($id) {
-        \App\Models\Checkin::create([
-            'user_id' => auth()->id(),
-            'equipment_id' => $id,
-            'type' => 'checkin',
-            'checked_at' => now()
-        ]);
+    Route::put(
+        '/bookings/{id}',
+        [BookingController::class, 'update']
+    );
 
-        return back()->with(
-            'success',
-            'Check-in berhasil'
-        );
+    Route::delete(
+        '/bookings/{id}',
+        [BookingController::class, 'destroy']
+    );
 
-    });
-
-    Route::post('/borrow/{id}', function ($id) {
-        $equipment = \App\Models\Equipment::find($id);
-        \App\Models\Booking::create([
-            'user_id' => auth()->id(),
-            'equipment_id' => $id,
-            'borrow_date' => now(),
-            'return_date' => now()->addDays(2),
-            'status' => 'approved'
-        ]);
-
-
-        $equipment->update([
-            'status' => 'borrowed'
-        ]);
-
-
-        return back()->with(
-            'success',
-            'Barang berhasil dipinjam'
-        );
-
-    });
-
-    Route::post('/return/{id}', function ($id) {
-        $booking = \App\Models\Booking::findOrFail($id);
-        $booking->update(['status' => 'returned']);
-        $equipment = \App\Models\Equipment::findOrFail($booking->equipment_id);
-        $equipment->update(['status' => 'available']);
-
-        return back()->with('success', 'Barang berhasil dikembalikan');
-    });
+    Route::get(
+        '/checkins',
+        [CheckinController::class, 'index']
+    );
 
 });

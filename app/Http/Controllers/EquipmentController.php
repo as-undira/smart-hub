@@ -7,27 +7,82 @@ use Illuminate\Http\Request;
 
 class EquipmentController extends Controller
 {
-    /**
-     * Menampilkan semua data equipment
-     */
+
     public function index()
     {
-        $equipments = Equipment::all();
+        $search = request('search');
 
-        return view('equipments.index', compact('equipments'));
+        $equipments = Equipment::query()
+
+            ->when(
+                $search,
+                function ($query) use ($search) {
+
+                    $query
+                        ->where(
+                            'name',
+                            'like',
+                            "%{$search}%"
+                        )
+                        ->orWhere(
+                            'category',
+                            'like',
+                            "%{$search}%"
+                        );
+                }
+            )
+            ->latest()
+            ->get();
+
+        return view(
+            'equipments.index',
+            compact('equipments')
+        );
     }
 
-    /**
-     * Menampilkan form tambah equipment
-     */
+    public function dashboard()
+    {
+        $totalEquipment = Equipment::count();
+
+        $availableEquipment = Equipment::query()
+            ->where(
+                'status',
+                'available'
+            )
+            ->count();
+
+        $borrowedEquipment = Equipment::query()
+            ->where(
+                'status',
+                'borrowed'
+            )
+            ->count();
+
+        $damagedEquipment = Equipment::query()
+            ->where(
+                'condition',
+                'damaged'
+            )
+            ->count();
+
+        return view(
+            'dashboard',
+            compact(
+                'totalEquipment',
+                'availableEquipment',
+                'borrowedEquipment',
+                'damagedEquipment'
+            )
+        );
+    }
+
     public function create()
     {
-        return view('equipments.create');
+        return view(
+            'equipments.create'
+        );
     }
 
-    /**
-     * Simpan equipment baru
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -37,37 +92,39 @@ class EquipmentController extends Controller
             'status' => 'required'
         ]);
 
-        Equipment::create($request->all());
 
-        return redirect()
-            ->route('equipments.index')
-            ->with('success', 'Equipment berhasil ditambahkan');
+        Equipment::create([
+            'name' => $request->name,
+            'category' => $request->category,
+            'condition' => $request->condition,
+            'status' => $request->status
+        ]);
+
+
+        return redirect(
+            '/equipments'
+        )->with(
+            'success',
+            'Equipment berhasil ditambahkan'
+        );
     }
 
-    /**
-     * Menampilkan detail equipment
-     */
-    public function show(string $id)
+    public function edit($id)
     {
-        $equipment = Equipment::findOrFail($id);
+        $equipment = Equipment::findOrFail(
+            $id
+        );
 
-        return view('equipments.show', compact('equipment'));
+        return view(
+            'equipments.edit',
+            compact('equipment')
+        );
     }
 
-    /**
-     * Menampilkan form edit
-     */
-    public function edit(string $id)
-    {
-        $equipment = Equipment::findOrFail($id);
-
-        return view('equipments.edit', compact('equipment'));
-    }
-
-    /**
-     * Update equipment
-     */
-    public function update(Request $request, string $id)
+    public function update(
+        Request $request,
+        $id
+    )
     {
         $request->validate([
             'name' => 'required',
@@ -76,49 +133,41 @@ class EquipmentController extends Controller
             'status' => 'required'
         ]);
 
-        $equipment = Equipment::findOrFail($id);
 
-        $equipment->update($request->all());
+        $equipment = Equipment::findOrFail(
+            $id
+        );
 
-        return redirect()
-            ->route('equipments.index')
-            ->with('success', 'Equipment berhasil diupdate');
+
+        $equipment->update([
+            'name' => $request->name,
+            'category' => $request->category,
+            'condition' => $request->condition,
+            'status' => $request->status
+        ]);
+
+
+        return redirect(
+            '/equipments'
+        )->with(
+            'success',
+            'Equipment berhasil diupdate'
+        );
     }
 
-    /**
-     * Hapus equipment
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $equipment = Equipment::findOrFail($id);
+        $equipment = Equipment::findOrFail(
+            $id
+        );
 
         $equipment->delete();
 
-        return redirect()
-            ->route('equipments.index')
-            ->with('success', 'Equipment berhasil dihapus');
+        return redirect(
+            '/equipments'
+        )->with(
+            'success',
+            'Equipment berhasil dihapus'
+        );
     }
-
-    public function dashboard()
-    {
-        $totalEquipment = Equipment::query()->count();
-
-        $availableEquipment = Equipment::query()
-            ->where('status', 'available')
-            ->count();
-
-        $borrowedEquipment = Equipment::query()
-            ->where('status', 'borrowed')
-            ->count();
-
-        $totalCheckin = \App\Models\Checkin::query()->count();
-
-        return view('dashboard', compact(
-            'totalEquipment',
-            'availableEquipment',
-            'borrowedEquipment',
-            'totalCheckin'
-        ));
-    }
-
 }

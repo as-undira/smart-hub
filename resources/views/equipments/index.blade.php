@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Equipment Management</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           rel="stylesheet">
-
 </head>
 
 <body style="background:#f8fafc;">
@@ -18,212 +14,132 @@
 
     <div class="row">
 
+        @include('layouts.sidebar')
 
-        <!-- Sidebar -->
-        <div class="col-md-2 bg-dark text-white min-vh-100 p-4">
-
-            <div class="mb-5">
-
-                <i class="fa-solid fa-cube text-primary fs-3"></i>
-
-                <h4 class="mt-2">
-
-                    Smart Hub
-
-                </h4>
-
-            </div>
-
-
-            <div class="mb-4">
-                <a href="/" class="text-white text-decoration-none">
-                    <i class="fa-solid fa-chart-line me-2"></i>
-                    Dashboard
-                </a>
-            </div>
-
-
-            <div class="mb-4">
-                <a href="/equipments" class="text-white text-decoration-none">
-                    <i class="fa-solid fa-box me-2"></i>
-                    Equipment
-                </a>
-            </div>
-
-
-            <div class="mb-4">
-                <a href="/bookings" class="text-white text-decoration-none">
-                    <i class="fa-solid fa-calendar-check me-2"></i>
-                    Booking
-                </a>
-            </div>
-
-
-            <div class="mb-4">
-                <a href="/checkins" class="text-white text-decoration-none">
-                    <i class="fa-solid fa-qrcode me-2"></i>
-                    Check-in
-                </a>
-            </div>
-
-
-            <div class="mt-5">
-
-                <form action="/logout"
-                      method="POST">
-
-                    @csrf
-
-                    <button class="btn btn-danger w-100 rounded-3">
-
-                        Logout
-
-                    </button>
-
-                </form>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- Main Content -->
         <div class="col-md-10 p-4">
 
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Equipment Management</h2>
+                    <p class="text-muted">Manage equipment inventory</p>
+                </div>
 
-            <!-- Header -->
-            <div class="card border-0 shadow-sm mb-4 rounded-4">
+                <a href="/equipments/create"class="btn btn-primary rounded-3">+ Add Equipment</a>
 
-                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            </div>
 
-                    <div>
+            @if(session('success'))
 
-                        <h3 class="mb-1">
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
 
-                            Equipment Management
+            @endif
 
-                        </h3>
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
 
-                        <p class="text-muted mb-0">
+                <div class="card-body">
 
-                            Manage inventory assets
+                    <form method="GET"
+                          action="/equipments">
 
-                        </p>
+                        <div class="row">
 
-                    </div>
+                            <div class="col-md-9">
+
+                                <input type="text"
+                                       name="search"
+                                       class="form-control rounded-3"
+                                       placeholder="Search equipment..."
+                                       value="{{ request('search') }}">
+                            </div>
 
 
-                    <a href="{{ route('equipments.create') }}"
-                       class="btn btn-primary rounded-3">
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100 rounded-3">Search</button>
+                            </div>
 
-                        <i class="fa-solid fa-plus"></i>
-                        Add Equipment
+                        </div>
 
-                    </a>
+                    </form>
 
                 </div>
 
             </div>
 
-
-
-            <!-- Table -->
             <div class="card border-0 shadow-sm rounded-4">
 
-                <div class="card-body p-4">
+                <div class="card-body">
 
                     <table class="table align-middle">
 
                         <thead>
-
                             <tr>
-
-                                <th>ID</th>
                                 <th>Name</th>
                                 <th>Category</th>
                                 <th>Condition</th>
                                 <th>Status</th>
                                 <th>Action</th>
-
                             </tr>
-
                         </thead>
+
 
 
                         <tbody>
 
-                            @foreach($equipments as $equipment)
+                            @forelse($equipments as $equipment)
 
                             <tr>
-
-                                <td>{{ $equipment->id }}</td>
-
-                                <td>{{ $equipment->name }}</td>
-
-                                <td>{{ $equipment->category }}</td>
-
-
                                 <td>
-
-                                    <span class="badge bg-success">
-
-                                        {{ $equipment->condition }}
-
-                                    </span>
-
+                                    {{ $equipment->name }}
                                 </td>
 
 
                                 <td>
-
-                                    <span class="badge bg-primary">
-
-                                        {{ $equipment->status }}
-
-                                    </span>
-
+                                    {{ $equipment->category }}
                                 </td>
 
 
                                 <td>
-
-                                    <a href="{{ route('equipments.edit', $equipment->id) }}"
-                                       class="btn btn-warning btn-sm rounded-3">
-
-                                        Edit
-
-                                    </a>
+                                    {{ $equipment->condition }}
+                                </td>
 
 
-                                    <form action="{{ route('equipments.destroy', $equipment->id) }}"
+                                <td>
+                                    {{ $equipment->status }}
+                                </td>
+
+
+
+                                <td>
+                                    <a href="/equipments/{{ $equipment->id }}/edit" class="btn btn-warning btn-sm">Edit</a>
+
+                                    <form action="/equipments/{{ $equipment->id }}"
                                           method="POST"
                                           class="d-inline">
 
                                         @csrf
                                         @method('DELETE')
 
-                                        <button class="btn btn-danger btn-sm rounded-3">
-
-                                            Delete
-
-                                        </button>
-
+                                        <button class="btn btn-danger btn-sm">Delete</button>
                                     </form>
-
                                 </td>
-
                             </tr>
 
-                            @endforeach
+                            @empty
+
+                            <tr>
+                                <td colspan="5"class="text-center text-muted">No equipment data</td>
+                            </tr>
+
+                            @endforelse
 
                         </tbody>
-
                     </table>
-
                 </div>
 
             </div>
+
 
         </div>
 
