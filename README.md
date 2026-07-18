@@ -1,58 +1,210 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Smart-Hub
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Summary
 
-## About Laravel
+Smart-Hub merupakan aplikasi manajemen peminjaman fasilitas studio kreatif yang memungkinkan anggota melakukan reservasi workspace dan peminjaman peralatan secara terintegrasi. Sistem menyediakan pengelolaan data fasilitas, validasi peminjaman, serta monitoring transaksi secara real-time melalui dashboard administrasi.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Teknologi dan Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Frontend
+- Vue.js 3
+- Inertia.js
+- Tailwind CSS
 
-## Learning Laravel
+### Backend
+- Laravel 13
+- PHP 8.4
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Database
+- PostgreSQL (Supabase)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Authentication & Security
+- Laravel Sanctum
+- Role-Based Access Control (Admin & Member)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### API
+- REST API
+- Inertia Request
 
-## Agentic Development
+### Development Tools
+- Visual Studio Code
+- Composer
+- Node.js
+- npm
+- Git & GitHub
+- Postman
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### AI Recommendation
+- Tidak menggunakan layanan AI API pada implementasi sistem.
 
-```bash
-composer require laravel/boost --dev
+---
 
-php artisan boost:install
+## Aktor Sistem
+
+### Admin
+- Mengelola data anggota
+- Mengelola data workspace
+- Mengelola data equipment
+- Melakukan persetujuan transaksi
+- Melakukan proses check-in dan check-out
+- Memantau dashboard dan histori transaksi
+
+### Member
+- Melihat daftar fasilitas
+- Mengajukan peminjaman
+- Membatalkan transaksi yang masih pending
+- Melihat riwayat transaksi
+
+---
+
+## Flow Aplikasi
+
+### Authentication
+
+```text
+Login
+↓
+Dashboard sesuai role
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Proses Peminjaman
 
-## Contributing
+```text
+Member membuat transaksi
+↓
+Status : Pending
+↓
+Admin melakukan validasi
+↓
+Approved / Rejected
+↓
+Checkout
+↓
+Borrowed
+↓
+Completed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Flow Sistem Secara Garis Besar
 
-## Code of Conduct
+```text
+User
+↓
+Vue.js Frontend
+↓
+Inertia / REST API
+↓
+Laravel Backend
+↓
+PostgreSQL (Supabase)
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Fitur Utama
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Dashboard
+- Statistik anggota
+- Statistik fasilitas
+- Statistik transaksi
+- Statistik peminjaman aktif
+- Riwayat transaksi terbaru
 
-## License
+### Manajemen Member
+- CRUD anggota
+- Pengaturan role
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Manajemen Workspace
+- CRUD workspace
+- Pengaturan kapasitas
+- Pengaturan relasi equipment
+
+### Manajemen Equipment
+- CRUD equipment
+- Monitoring stok
+
+### Manajemen Transaksi
+- Pengajuan peminjaman
+- Validasi jadwal
+- Validasi stok
+- Approval transaksi
+- Check-in dan check-out
+- Riwayat transaksi
+
+---
+
+## Struktur Database
+
+### Tabel Utama
+
+- users
+- workspaces
+- equipments
+- workspace_equipment
+- transactions
+- transaction_items
+
+---
+
+## Aturan Bisnis
+
+- Workspace tidak dapat dibooking pada waktu yang bertabrakan.
+- Stok equipment akan berkurang saat checkout.
+- Stok akan kembali setelah transaksi selesai.
+- Maksimal durasi peminjaman workspace adalah 8 jam.
+- Maksimal durasi peminjaman equipment adalah 7 hari.
+- Hanya transaksi berstatus pending yang dapat dibatalkan oleh member.
+
+---
+
+## Status Transaksi
+
+```text
+pending
+approved
+rejected
+cancelled
+borrowed
+completed
+```
+
+---
+
+## Struktur Menu
+
+### Admin
+
+```text
+Dashboard
+├── Members
+├── Workspaces
+├── Equipments
+├── Transactions
+└── Profile
+```
+
+### Member
+
+```text
+Dashboard
+├── Workspaces
+├── Equipments
+├── My Transactions
+└── Profile
+```
+
+---
+
+## Informasi Non-Teknis
+
+### Permasalahan
+
+Pengelolaan peminjaman fasilitas studio secara manual sering menyebabkan bentrok jadwal, kesalahan pencatatan, dan kesulitan dalam memantau ketersediaan fasilitas.
+
+### Solusi
+
+Smart-Hub menyediakan sistem terintegrasi untuk mengelola peminjaman fasilitas, meningkatkan efisiensi administrasi, serta mempermudah monitoring transaksi dan ketersediaan fasilitas.
+
+---
